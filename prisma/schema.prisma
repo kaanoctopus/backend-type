@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URI")
+}
+
+model User {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  firstName            String
+  lastName             String
+  email                String        @unique
+  password             String
+  history              Calculation[] @relation("UserHistory")
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+}
+
+model Calculation {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  user       User     @relation("UserHistory", fields: [userId], references: [id])
+  expression String
+  result     String
+  createdAt  DateTime @default(now())
+}
