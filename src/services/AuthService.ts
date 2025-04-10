@@ -111,6 +111,7 @@ If you did not request this, please ignore this email and your password will rem
         };
     }
 
+    // method to fetch the current user's details
     async getMe(userId: string): Promise<SafeUser> {
         const user = await prisma.user.findUnique({
             where: { id: userId },

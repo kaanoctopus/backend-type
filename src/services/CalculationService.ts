@@ -6,6 +6,8 @@ import { saveToBackupAPI } from "../utils/saveBackup";
 const prisma = new PrismaClient();
 
 class CalculationService {
+    // Evaluate a mathematical expression and save the result to the database
+    // If the primary database save fails, it will try to save to a backup API
     async evaluateExpression(
         expression: string,
         userId: string
@@ -23,7 +25,7 @@ class CalculationService {
             throw new Error("Invalid Expression");
         }
     }
-
+    // Save the calculation to the database and handle any errors
     private async saveCalculationAsync(
         userId: string,
         expression: string,
