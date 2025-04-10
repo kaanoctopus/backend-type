@@ -7,18 +7,15 @@ export const validateCalculation = [
     .notEmpty().withMessage("Expression is required")
     .isString().withMessage("Expression must be a string")
     .custom((value: string) => {
-      const baseAllowedChars = /^[0-9+\-*/().\s!^]+$/;
-
-      const allowedFunctions = /(sin|cos|tan|log|sqrt|pi)/g;
-
-      const degreeNotation = /\d+\s*deg/g;
+      const baseAllowedChars = /^[0-9+\-*/().\s!^a-z]+$/;
+      const allowedFunctions = /(sin|cos|tan|log|sqrt|pi|deg)/g; 
 
       const funcMatches = [...value.matchAll(allowedFunctions)];
-      const degMatches = [...value.matchAll(degreeNotation)];
+
 
       const protectedPositions = new Set();
       
-      for (const match of [...funcMatches, ...degMatches]) {
+      for (const match of funcMatches) {
         for (let i = match.index; i < match.index + match[0].length; i++) {
           protectedPositions.add(i);
         }
