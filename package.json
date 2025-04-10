@@ -23,5 +23,8 @@
     "@types/node": "^22.14.0",
     "@types/nodemailer": "^6.4.17",
     "typescript": "^5.8.3"
+  },
+  "prisma": {
+    "schema": "src/schemas/schema.prisma"
   }
 }
