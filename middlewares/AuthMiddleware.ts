@@ -1,17 +1,15 @@
-import { Request, Response, NextFunction  } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { sendResponse } from "../controllers/responseController";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export const authMiddleware = (
-    req: Request,
-    res: any,
-    next: NextFunction
-) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const token = req.headers.authorization?.split(" ")[1];
+
     if (!token) {
-        const errorResponse = { message: "Unauthorized" };
-        return res.status(401).json(errorResponse);
+        sendResponse(res, 401, "Unauthorized");
+        return;
     }
 
     try {
@@ -19,7 +17,8 @@ export const authMiddleware = (
         req.userId = decoded.id;
         next();
     } catch {
-        const errorResponse = { message: "Invalid Token" };
-        return res.status(401).json(errorResponse);
+        sendResponse(res, 401, "Invalid Token");
+        return;
     }
+    sendResponse(res, 200, "Token is valid");
 };

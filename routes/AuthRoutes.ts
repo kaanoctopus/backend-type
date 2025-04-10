@@ -6,7 +6,7 @@ import {
     updateProfileValidation,
     forgotPasswordValidation,
     resetPasswordValidation,
-} from "../middlewares/AuthValidationMiddleware";
+} from "../validations/Auth";
 import { authLimiter } from "../middlewares/RateLimiter";
 import { AuthService } from "../services/AuthService";
 import { AuthController } from "../controllers/AuthController";
@@ -18,11 +18,6 @@ const router = express.Router();
 const authService = new AuthService();
 const authController = new AuthController(authService);
 
-type AsyncRouteHandler = (
-    req: Request,
-    res: Response<AuthResponse | LoginResponse | SafeUser | ErrorResponse>,
-    next: NextFunction
-) => Promise<void>;
 
 router.use(helmet());
 router.use(cors());
@@ -45,7 +40,7 @@ router.post(
 router.post(
     "/login",
     [authLimiter, ...loginValidation],
-    authController.login as AsyncRouteHandler
+    authController.login
 );
 router.get("/me", authMiddleware, authController.getMe);
 router.put(

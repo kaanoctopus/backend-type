@@ -3,7 +3,7 @@ import { CalculationService } from "../services/CalculationService";
 import { CalculationController } from "../controllers/CalculationController";
 import { authMiddleware } from "../middlewares/AuthMiddleware";
 import { calcLimiter } from "../middlewares/RateLimiter";
-import { validateCalculation } from "../middlewares/CalculateValidationMiddleware";
+import { validateCalculation } from "../validations/Calculate";
 
 const router = express.Router();
 
