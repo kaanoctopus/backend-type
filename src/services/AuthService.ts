@@ -1,20 +1,14 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { PrismaClient } from "@prisma/client";
 import { AuthResponse, LoginResponse, SafeUser } from "../types";
+import {
+    hashPassword,
+    comparePasswords,
+    generateJWT,
+} from "../utils/authUtils";
+import { sendEmail } from "../utils/mailer";
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET as string;
-
-const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || "gmail",
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-    },
-});
 
 export class AuthService {
     async forgotPassword(email: string): Promise<AuthResponse> {
@@ -34,17 +28,15 @@ export class AuthService {
 
         const resetUrl = `https://calculatoroctopus.netlify.app/?token=${resetToken}`;
 
-        const mailOptions = {
+        await sendEmail({
             to: user.email,
-            from: process.env.EMAIL_FROM,
             subject: "Password Reset",
             text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
 Please click on the following link, or paste this into your browser to complete the process:\n\n
 ${resetUrl}\n\n
 If you did not request this, please ignore this email and your password will remain unchanged.\n`,
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
         return { message: "Password reset email sent" };
     }
 
@@ -62,7 +54,7 @@ If you did not request this, please ignore this email and your password will rem
         if (!user)
             throw new Error("Password reset token is invalid or has expired");
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await hashPassword(newPassword);
 
         await prisma.user.update({
             where: { id: user.id },
@@ -85,7 +77,7 @@ If you did not request this, please ignore this email and your password will rem
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) throw new Error("User already exists");
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await hashPassword(password);
 
         await prisma.user.create({
             data: {
@@ -101,14 +93,11 @@ If you did not request this, please ignore this email and your password will rem
 
     async login(email: string, password: string): Promise<LoginResponse> {
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !(await comparePasswords(password, user.password))) {
             throw new Error("Invalid credentials");
         }
 
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, {
-            expiresIn: "7d",
-        });
-
+        const token = generateJWT(user.id);
         const {
             password: _,
             resetPasswordToken,

@@ -1,13 +1,13 @@
 import path from "path";
-require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+require("dotenv").config({ path: path.resolve(__dirname, "./config/.env") });
 
 import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
-import calculationRoutes from "../../routes/CalculationRoutes";
-import authRoutes from "../../routes/AuthRoutes";
+import calculationRoutes from "./routes/CalculationRoutes";
+import authRoutes from "./routes/AuthRoutes";
 
 const prisma = new PrismaClient();
 const app = express();
