@@ -20,5 +20,4 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
         sendResponse(res, 401, "Invalid Token");
         return;
     }
-    sendResponse(res, 200, "Token is valid");
 };
