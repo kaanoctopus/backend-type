@@ -1,5 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
-import { AuthResponse, LoginResponse, ErrorResponse, SafeUser } from "../types";
+import express from "express";
 import {
     registerValidation,
     loginValidation,
@@ -18,30 +17,25 @@ const router = express.Router();
 const authService = new AuthService();
 const authController = new AuthController(authService);
 
-
 router.use(helmet());
 router.use(cors());
 
-router.options("*", (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization"
-    );
-    res.sendStatus(204);
-});
+// router.options("*", (_, res) => {
+//     res.setHeader("Access-Control-Allow-Origin", "*");
+//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+//     res.setHeader(
+//         "Access-Control-Allow-Headers",
+//         "Content-Type, Authorization"
+//     );
+//     res.sendStatus(204);
+// });
 
 router.post(
     "/register",
     [authLimiter, ...registerValidation],
     authController.register
 );
-router.post(
-    "/login",
-    [authLimiter, ...loginValidation],
-    authController.login
-);
+router.post("/login", [authLimiter, ...loginValidation], authController.login);
 router.get("/me", authMiddleware, authController.getMe);
 router.put(
     "/me",
