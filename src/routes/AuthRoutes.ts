@@ -20,16 +20,6 @@ const authController = new AuthController(authService);
 router.use(helmet());
 router.use(cors());
 
-// router.options("*", (_, res) => {
-//     res.setHeader("Access-Control-Allow-Origin", "*");
-//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-//     res.setHeader(
-//         "Access-Control-Allow-Headers",
-//         "Content-Type, Authorization"
-//     );
-//     res.sendStatus(204);
-// });
-
 router.post(
     "/register",
     [authLimiter, ...registerValidation],
