@@ -13,7 +13,7 @@ class CalculationService {
         userId: string
     ): Promise<CalculationResult> {
         try {
-            const result = evaluate(expression);
+            const result = evaluate(expression).toString();
 
             this.saveCalculationAsync(userId, expression, result).catch((err) =>
                 console.error("Background save error:", err)
