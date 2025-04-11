@@ -1,22 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaCalculationAdapter } from "../adapters/PrismaCalculationAdapter";
+import { ICalculationAdapter } from "../adapters/interfaces/ICalculationAdapter";
 
-const prisma = new PrismaClient();
-
-export const CalculationModel = {
-    create: async (data: {
-        userId: string;
-        expression: string;
-        result: string;
-    }) => {
-        return prisma.calculation.create({ data });
-    },
-    findHistoryByUserId: async (userId: string) => {
-        return prisma.calculation.findMany({
-            where: { userId },
-            orderBy: { createdAt: "desc" },
-        });
-    },
-    clearHistoryByUserId: async (userId: string) => {
-        return prisma.calculation.deleteMany({ where: { userId } });
-    },
-};
+export const CalculationModel: ICalculationAdapter =
+    new PrismaCalculationAdapter();

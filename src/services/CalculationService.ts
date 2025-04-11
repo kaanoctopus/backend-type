@@ -4,8 +4,14 @@ import { CalculationResult, CalculationRecord } from "../types";
 import { saveToBackupAPI } from "../utils/saveBackup";
 
 class CalculationService {
-    // Evaluate a mathematical expression and save the result to the database
-    // If the primary database save fails, it will try to save to a backup API
+    /**
+     * Evaluates a mathematical expression and saves the result to the database.
+     * If saving to the primary database fails, it attempts to save to a backup API.
+     * @param expression - The mathematical expression to evaluate.
+     * @param userId - The ID of the user performing the calculation.
+     * @returns The result of the evaluated expression.
+     * @throws Error if the expression is invalid or an error occurs during evaluation.
+     */
     async evaluateExpression(
         expression: string,
         userId: string
@@ -13,24 +19,30 @@ class CalculationService {
         try {
             const result = evaluate(expression).toString();
 
+            // Save the calculation asynchronously, logging any errors that occur.
             this.saveCalculationAsync(userId, expression, result).catch((err) =>
                 console.error("Background save error:", err)
             );
 
             return { result };
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                throw new Error(
-                    "Invalid Expression or Calculation Error: " + error.message
-                );
-            }
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "Unknown error occurred.";
             throw new Error(
-                "Invalid Expression or Calculation Error: Unknown error occurred."
+                `Invalid Expression or Calculation Error: ${errorMessage}`
             );
         }
     }
 
-    // Save the calculation to the database and handle any errors
+    /**
+     * Saves a calculation to the database. If the primary save fails, it attempts to save to a backup API.
+     * @param userId - The ID of the user performing the calculation.
+     * @param expression - The mathematical expression that was evaluated.
+     * @param result - The result of the evaluated expression.
+     * @returns The saved calculation record or void if saved to the backup API.
+     */
     private async saveCalculationAsync(
         userId: string,
         expression: string,
@@ -50,10 +62,19 @@ class CalculationService {
         }
     }
 
+    /**
+     * Retrieves the calculation history for a specific user.
+     * @param userId - The ID of the user whose history is being retrieved.
+     * @returns An array of calculation records.
+     */
     async getHistory(userId: string): Promise<CalculationRecord[]> {
         return CalculationModel.findHistoryByUserId(userId);
     }
 
+    /**
+     * Clears the calculation history for a specific user.
+     * @param userId - The ID of the user whose history is being cleared.
+     */
     async clearHistory(userId: string): Promise<void> {
         await CalculationModel.clearHistoryByUserId(userId);
     }
