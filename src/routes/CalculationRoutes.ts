@@ -7,6 +7,7 @@ import { validateCalculation } from "../validations/Calculate";
 import { handleValidationErrors } from "../middlewares/HandleValidation";
 
 const router = express.Router();
+router.use(calcLimiter);
 
 const calculationService = new CalculationService();
 const calculationController = new CalculationController(calculationService);
@@ -16,7 +17,6 @@ router.post(
     authMiddleware,
     validateCalculation,
     handleValidationErrors,
-    calcLimiter,
     calculationController.calculate
 );
 router.get("/history", authMiddleware, calculationController.getHistory);

@@ -20,17 +20,16 @@ const authController = new AuthController(authService);
 
 router.use(helmet());
 router.use(cors());
+router.use(authLimiter);
 
 router.post(
     "/register",
-    authLimiter,
     registerValidation,
     handleValidationErrors,
     authController.register
 );
 router.post(
     "/login",
-    authLimiter,
     loginValidation,
     handleValidationErrors,
     authController.login
@@ -46,14 +45,12 @@ router.delete("/me", authMiddleware, authController.deleteAccount);
 router.post("/logout", authMiddleware, authController.logout);
 router.post(
     "/forgot-password",
-    authLimiter,
     forgotPasswordValidation,
     handleValidationErrors,
     authController.forgotPassword
 );
 router.post(
     "/reset-password",
-    authLimiter,
     resetPasswordValidation,
     handleValidationErrors,
     authController.resetPassword
