@@ -23,10 +23,18 @@ router.use(cors());
 
 router.post(
     "/register",
-    [authLimiter, ...registerValidation, handleValidationErrors],
+    authLimiter,
+    registerValidation,
+    handleValidationErrors,
     authController.register
 );
-router.post("/login", [authLimiter, ...loginValidation, handleValidationErrors], authController.login);
+router.post(
+    "/login",
+    authLimiter,
+    loginValidation,
+    handleValidationErrors,
+    authController.login
+);
 router.get("/me", authMiddleware, authController.getMe);
 router.put(
     "/me",
@@ -38,12 +46,16 @@ router.delete("/me", authMiddleware, authController.deleteAccount);
 router.post("/logout", authMiddleware, authController.logout);
 router.post(
     "/forgot-password",
-    [authLimiter, ...forgotPasswordValidation, handleValidationErrors],
+    authLimiter,
+    forgotPasswordValidation,
+    handleValidationErrors,
     authController.forgotPassword
 );
 router.post(
     "/reset-password",
-    [authLimiter, ...resetPasswordValidation, handleValidationErrors],
+    authLimiter,
+    resetPasswordValidation,
+    handleValidationErrors,
     authController.resetPassword
 );
 
