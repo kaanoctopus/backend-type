@@ -12,7 +12,7 @@ import { AuthController } from "../controllers/AuthController";
 import { authMiddleware } from "../middlewares/AuthMiddleware";
 import cors from "cors";
 import helmet from "helmet";
-import { handleValidationErrors } from "../middlewares/HandleValidation";
+import { handleValidation } from "../middlewares/HandleValidation";
 
 const router = express.Router();
 const authService = new AuthService();
@@ -25,13 +25,13 @@ router.use(authLimiter);
 router.post(
     "/register",
     registerValidation,
-    handleValidationErrors,
+    handleValidation,
     authController.register
 );
 router.post(
     "/login",
     loginValidation,
-    handleValidationErrors,
+    handleValidation,
     authController.login
 );
 router.get("/me", authMiddleware, authController.getMe);
@@ -39,7 +39,7 @@ router.put(
     "/me",
     authMiddleware,
     updateProfileValidation,
-    handleValidationErrors,
+    handleValidation,
     authController.updateProfile
 );
 router.delete("/me", authMiddleware, authController.deleteAccount);
@@ -47,13 +47,13 @@ router.post("/logout", authMiddleware, authController.logout);
 router.post(
     "/forgot-password",
     forgotPasswordValidation,
-    handleValidationErrors,
+    handleValidation,
     authController.forgotPassword
 );
 router.post(
     "/reset-password",
     resetPasswordValidation,
-    handleValidationErrors,
+    handleValidation,
     authController.resetPassword
 );
 

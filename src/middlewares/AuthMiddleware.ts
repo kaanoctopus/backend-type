@@ -3,7 +3,11 @@ import jwt from "jsonwebtoken";
 import { sendResponse } from "../controllers/responseController";
 import { getToken, verifyJWT } from "../utils/authUtils";
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+export const authMiddleware = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): void => {
     const token = getToken(req);
 
     if (!token) {
