@@ -1,6 +1,4 @@
 import { body } from "express-validator";
-// import { handleValidationErrors } from "../controllers/errorController";
-import { handleValidationErrors } from "../middlewares/HandleValidation";
 
 export const registerValidation = [
     body("firstName").trim().notEmpty().withMessage("First name is required"),
@@ -9,13 +7,11 @@ export const registerValidation = [
     body("password")
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters"),
-    handleValidationErrors,
 ];
 
 export const loginValidation = [
     body("email").trim().isEmail().withMessage("Valid email is required"),
     body("password").notEmpty().withMessage("Password is required"),
-    handleValidationErrors,
 ];
 
 export const updateProfileValidation = [
@@ -29,12 +25,10 @@ export const updateProfileValidation = [
         .trim()
         .notEmpty()
         .withMessage("Last name cannot be empty"),
-    handleValidationErrors,
 ];
 
 export const forgotPasswordValidation = [
     body("email").trim().isEmail().withMessage("Valid email is required"),
-    handleValidationErrors,
 ];
 
 export const resetPasswordValidation = [
@@ -42,5 +36,4 @@ export const resetPasswordValidation = [
     body("newPassword")
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters"),
-    handleValidationErrors,
 ];

@@ -4,6 +4,7 @@ import { CalculationController } from "../controllers/CalculationController";
 import { authMiddleware } from "../middlewares/AuthMiddleware";
 import { calcLimiter } from "../middlewares/RateLimiter";
 import { validateCalculation } from "../validations/Calculate";
+import { handleValidationErrors } from "../middlewares/HandleValidation";
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.post(
     "/calculate",
     authMiddleware,
     validateCalculation,
+    handleValidationErrors,
     calcLimiter,
     calculationController.calculate
 );

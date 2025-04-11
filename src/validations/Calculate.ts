@@ -1,5 +1,4 @@
 import { body } from "express-validator";
-import { handleValidationErrors } from "../middlewares/HandleValidation";
 
 export const validateCalculation = [
     body("expression")
@@ -57,5 +56,4 @@ export const validateCalculation = [
 
             return true;
         }),
-    handleValidationErrors,
 ];
