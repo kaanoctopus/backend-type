@@ -39,6 +39,7 @@ router.put(
     "/me",
     authMiddleware,
     updateProfileValidation,
+    handleValidationErrors,
     authController.updateProfile
 );
 router.delete("/me", authMiddleware, authController.deleteAccount);
