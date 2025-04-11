@@ -1,9 +1,7 @@
 import { evaluate } from "mathjs";
-import { PrismaClient } from "@prisma/client";
+import { CalculationModel } from "../models/CalculationModel";
 import { CalculationResult, CalculationRecord } from "../types";
 import { saveToBackupAPI } from "../utils/saveBackup";
-
-const prisma = new PrismaClient();
 
 class CalculationService {
     // Evaluate a mathematical expression and save the result to the database
@@ -20,10 +18,18 @@ class CalculationService {
             );
 
             return { result };
-        } catch (error) {
-            throw new Error("Invalid Expression");
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                throw new Error(
+                    "Invalid Expression or Calculation Error: " + error.message
+                );
+            }
+            throw new Error(
+                "Invalid Expression or Calculation Error: Unknown error occurred."
+            );
         }
     }
+
     // Save the calculation to the database and handle any errors
     private async saveCalculationAsync(
         userId: string,
@@ -31,12 +37,10 @@ class CalculationService {
         result: string
     ): Promise<CalculationRecord | void> {
         try {
-            const calculation = await prisma.calculation.create({
-                data: {
-                    userId,
-                    expression,
-                    result,
-                },
+            const calculation = await CalculationModel.create({
+                userId,
+                expression,
+                result,
             });
 
             return calculation;
@@ -47,14 +51,11 @@ class CalculationService {
     }
 
     async getHistory(userId: string): Promise<CalculationRecord[]> {
-        return prisma.calculation.findMany({
-            where: { userId },
-            orderBy: { createdAt: "desc" },
-        });
+        return CalculationModel.findHistoryByUserId(userId);
     }
 
     async clearHistory(userId: string): Promise<void> {
-        await prisma.calculation.deleteMany({ where: { userId } });
+        await CalculationModel.clearHistoryByUserId(userId);
     }
 }
 

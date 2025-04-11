@@ -3,10 +3,10 @@ import express from "express";
 import router from "../routes/CalculationRoutes";
 import { CalculationService } from "../services/CalculationService";
 
-const mockTestUserId = process.env.AUTH_KEY;
+const mockTestUserId: string = process.env.AUTH_KEY as string;
 
 jest.mock("../middlewares/AuthMiddleware", () => ({
-    authMiddleware: (req: any, res: any, next: any) => {
+    authMiddleware: (req: express.Request, res: express.Response, next: express.NextFunction) => {
         req.userId = mockTestUserId;
         next();
     },
@@ -48,7 +48,7 @@ describe("Calculation Routes", () => {
                 .send({ expression: "invalid" });
 
             expect(res.statusCode).toBe(400);
-            expect(res.body.error).toBe(undefined);
+            expect(res.body.error).toBe("Invalid Expression");
         });
     });
 
@@ -57,6 +57,7 @@ describe("Calculation Routes", () => {
             const mockHistory = [
                 { expression: "1+1", result: "2", createdAt: `${new Date()}` },
             ];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mockGetHistory.mockResolvedValueOnce(mockHistory as any);
 
             const res = await request(app).get("/api/history");

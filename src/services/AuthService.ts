@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { PrismaClient } from "@prisma/client";
+import { UserModel } from "../models/UserModel";
 import { AuthResponse, LoginResponse, SafeUser } from "../types";
 import {
     hashPassword,
@@ -8,23 +8,19 @@ import {
 } from "../utils/authUtils";
 import { sendEmail } from "../utils/mailer";
 
-const prisma = new PrismaClient();
-
 export class AuthService {
     async forgotPassword(email: string): Promise<AuthResponse> {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await UserModel.findByEmail(email);
         if (!user) throw new Error("User not found");
 
         const resetToken = crypto.randomBytes(20).toString("hex");
         const resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                resetPasswordToken: resetToken,
-                resetPasswordExpires,
-            },
-        });
+        await UserModel.updateResetToken(
+            user.id,
+            resetToken,
+            resetPasswordExpires
+        );
 
         const resetUrl = `https://calculatoroctopus.netlify.app/?token=${resetToken}`;
 
@@ -44,25 +40,16 @@ If you did not request this, please ignore this email and your password will rem
         token: string,
         newPassword: string
     ): Promise<AuthResponse> {
-        const user = await prisma.user.findFirst({
-            where: {
-                resetPasswordToken: token,
-                resetPasswordExpires: { gt: new Date() },
-            },
-        });
-
+        const user = await UserModel.findByResetToken(token);
         if (!user)
             throw new Error("Password reset token is invalid or has expired");
 
         const hashedPassword = await hashPassword(newPassword);
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                password: hashedPassword,
-                resetPasswordToken: null,
-                resetPasswordExpires: null,
-            },
+        await UserModel.updateProfile(user.id, {
+            password: hashedPassword,
+            resetPasswordToken: null,
+            resetPasswordExpires: null,
         });
 
         return { message: "Password has been reset" };
@@ -74,36 +61,29 @@ If you did not request this, please ignore this email and your password will rem
         email: string,
         password: string
     ): Promise<AuthResponse> {
-        const existingUser = await prisma.user.findUnique({ where: { email } });
+        const existingUser = await UserModel.findByEmail(email);
         if (existingUser) throw new Error("User already exists");
 
         const hashedPassword = await hashPassword(password);
 
-        await prisma.user.create({
-            data: {
-                firstName,
-                lastName,
-                email,
-                password: hashedPassword,
-            },
+        await UserModel.create({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
         });
 
         return { message: "User registered successfully" };
     }
 
     async login(email: string, password: string): Promise<LoginResponse> {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await UserModel.findByEmail(email);
         if (!user || !(await comparePasswords(password, user.password))) {
             throw new Error("Invalid credentials");
         }
 
         const token = generateJWT(user.id);
-        const {
-            password: _,
-            resetPasswordToken,
-            resetPasswordExpires,
-            ...safeUser
-        } = user;
+        const { ...safeUser } = user;
 
         return {
             token,
@@ -113,16 +93,7 @@ If you did not request this, please ignore this email and your password will rem
 
     // method to fetch the current user's details
     async getMe(userId: string): Promise<SafeUser> {
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-            },
-        });
-
+        const user = await UserModel.findById(userId);
         if (!user) throw new Error("User not found");
         return user;
     }
@@ -132,16 +103,13 @@ If you did not request this, please ignore this email and your password will rem
         firstName: string,
         lastName: string
     ): Promise<AuthResponse> {
-        await prisma.user.update({
-            where: { id: userId },
-            data: { firstName, lastName },
-        });
+        await UserModel.updateProfile(userId, { firstName, lastName });
 
         return { message: "Profile updated" };
     }
 
     async deleteAccount(userId: string): Promise<AuthResponse> {
-        await prisma.user.delete({ where: { id: userId } });
+        await UserModel.delete(userId);
         return { message: "Account deleted" };
     }
 }

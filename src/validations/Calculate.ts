@@ -25,7 +25,7 @@ export const validateCalculation = [
                 }
             }
 
-            let invalidChars = [];
+            const invalidChars = [];
             for (let i = 0; i < value.length; i++) {
                 if (protectedPositions.has(i)) continue;
 

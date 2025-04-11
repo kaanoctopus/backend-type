@@ -1,5 +1,6 @@
 import path from "path";
-require("dotenv").config({ path: path.resolve(__dirname, "./config/.env") });
+import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(__dirname, "./config/.env") });
 
 import express from "express";
 import serverless from "serverless-http";
