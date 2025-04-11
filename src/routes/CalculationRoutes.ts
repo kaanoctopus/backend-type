@@ -7,13 +7,13 @@ import { validateCalculation } from "../validations/Calculate";
 import { handleValidationErrors } from "../middlewares/HandleValidation";
 
 const router = express.Router();
-router.use(calcLimiter);
 
 const calculationService = new CalculationService();
 const calculationController = new CalculationController(calculationService);
 
 router.post(
     "/calculate",
+    calcLimiter, // Apply calcLimiter only to the calculate route
     authMiddleware,
     validateCalculation,
     handleValidationErrors,
